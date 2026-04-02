@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taylor's Gift – OPO Partnership Calculator</title>
+<style>
+  :root {
+    --tgf-teal: #72CCD2;
+    --tgf-teal-light: #EAF8FA;
+    --tgf-teal-mid: #5AB8BE;
+    --tgf-teal-dark: #3A8F94;
+    --tgf-dark: #333333;
+    --tgf-gray: #666666;
+    --tgf-light-gray: #F5F7F7;
+    --tgf-border: #D8ECEE;
+    --border-radius-lg: 12px;
+    --border-radius-md: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #f0f4f5; padding: 2rem 1rem; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+  .tgf-wrap { max-width: 820px; margin: 0 auto; color: var(--tgf-dark); padding-bottom: 2rem; }
+
+  .tgf-header { display: flex; align-items: center; gap: 14px; padding: 1.25rem 1.5rem; background: var(--tgf-teal); border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0; }
+  .tgf-header-right { margin-left: auto; text-align: right; }
+  .tgf-header-title { font-size: 13px; color: rgba(255,255,255,0.9); font-weight: 500; }
+  .tgf-header-sub { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 2px; }
+
+  .tgf-body { background: #fff; border: 1px solid var(--tgf-border); border-top: none; border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg); padding: 1.5rem; }
+
+  .tgf-section-title { font-size: 10px; font-weight: 600; color: var(--tgf-teal-dark); text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 12px; display: flex; align-items: center; gap: 8px; }
+  .tgf-section-title::after { content: ''; flex: 1; height: 1px; background: var(--tgf-border); }
+
+  .tier-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .tier-card { border: 1.5px solid var(--tgf-border); border-radius: var(--border-radius-lg); padding: 14px 12px; cursor: pointer; transition: all 0.15s; background: #fff; }
+  .tier-card:hover { border-color: var(--tgf-teal); }
+  .tier-card.active { border: 2px solid var(--tgf-teal); background: var(--tgf-teal-light); }
+  .tier-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--tgf-border); display: inline-block; margin-bottom: 8px; }
+  .tier-card.active .tier-dot { background: var(--tgf-teal); }
+  .tier-label { font-weight: 600; font-size: 14px; color: var(--tgf-dark); margin: 0 0 2px; }
+  .tier-sub { font-size: 11px; color: var(--tgf-gray); margin: 0 0 8px; }
+  .tier-rate { font-size: 13px; font-weight: 600; color: var(--tgf-teal-dark); }
+  .tier-budget { font-size: 11px; color: var(--tgf-gray); margin-top: 3px; }
+  .tier-note { font-size: 10px; color: var(--tgf-teal-dark); margin-top: 4px; font-style: italic; }
+
+  .tgf-controls { background: var(--tgf-light-gray); border: 1px solid var(--tgf-border); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+  .control-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .control-row:last-child { margin-bottom: 0; }
+  .control-label { font-size: 12px; color: var(--tgf-gray); min-width: 145px; font-weight: 500; }
+  .control-val { font-size: 14px; font-weight: 600; min-width: 55px; text-align: right; color: var(--tgf-dark); }
+  input[type=range] { accent-color: var(--tgf-teal); flex: 1; }
+  .tgf-badge { display: inline-block; font-size: 10px; padding: 2px 8px; border-radius: 20px; background: var(--tgf-teal); color: #fff; font-weight: 600; letter-spacing: 0.03em; }
+
+  .inline-input { width: 70px; padding: 4px 6px; font-size: 13px; font-weight: 600; border: 1px solid var(--tgf-border); border-radius: var(--border-radius-md); background: #fff; color: var(--tgf-dark); font-family: inherit; text-align: right; }
+  .inline-input:focus { outline: none; border-color: var(--tgf-teal); box-shadow: 0 0 0 2px rgba(114,204,210,0.2); }
+  .inline-input-suffix { font-size: 11px; color: var(--tgf-gray); margin-left: 2px; }
+
+  .budget-input { width: 100%; padding: 6px 8px; font-size: 13px; border: 1px solid var(--tgf-border); border-radius: var(--border-radius-md); background: #fff; color: var(--tgf-dark); font-family: inherit; }
+  .budget-input:focus { outline: none; border-color: var(--tgf-teal); box-shadow: 0 0 0 2px rgba(114,204,210,0.2); }
+  .budget-suffix { font-size: 12px; color: var(--tgf-gray); white-space: nowrap; min-width: 44px; }
+
+  .billing-notice { display: flex; gap: 10px; align-items: flex-start; background: var(--tgf-teal-light); border-left: 3px solid var(--tgf-teal); border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0; padding: 10px 14px; margin-bottom: 1.5rem; font-size: 12px; color: var(--tgf-gray); line-height: 1.6; }
+  .billing-notice strong { color: var(--tgf-teal-dark); font-weight: 600; }
+
+  .hours-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; margin-bottom: 10px; }
+  .hours-card { border: 1px solid var(--tgf-border); border-radius: var(--border-radius-md); padding: 10px 12px; background: #fff; }
+  .hours-service { font-size: 11px; color: var(--tgf-gray); margin: 0 0 3px; font-weight: 500; }
+  .hours-val { font-size: 20px; font-weight: 700; color: var(--tgf-teal-dark); margin: 0; }
+  .hours-detail { font-size: 10px; color: var(--tgf-gray); margin: 2px 0 0; }
+  .hours-total { display: flex; align-items: center; justify-content: space-between; background: var(--tgf-teal); border-radius: var(--border-radius-md); padding: 10px 14px; margin-bottom: 1.5rem; }
+  .hours-total-label { font-size: 13px; color: #fff; font-weight: 600; }
+  .hours-total-note { font-size: 11px; color: rgba(255,255,255,0.85); }
+
+  .metrics-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-bottom: 1.5rem; }
+  .metric { background: var(--tgf-light-gray); border: 1px solid var(--tgf-border); border-radius: var(--border-radius-md); padding: 12px 14px; }
+  .metric-label { font-size: 11px; color: var(--tgf-gray); margin: 0 0 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.04em; }
+  .metric-val { font-size: 22px; font-weight: 700; color: var(--tgf-dark); margin: 0; }
+  .metric-sub { font-size: 10px; color: var(--tgf-gray); margin: 3px 0 0; }
+  .metric.highlight { background: var(--tgf-teal); border-color: var(--tgf-teal); }
+  .metric.highlight .metric-label { color: rgba(255,255,255,0.85); }
+  .metric.highlight .metric-val { color: #fff; }
+  .metric.highlight .metric-sub { color: rgba(255,255,255,0.75); }
+
+  .tgf-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 1.5rem; }
+  .tgf-table th { text-align: left; font-weight: 600; font-size: 10px; color: var(--tgf-gray); padding: 6px 10px; border-bottom: 2px solid var(--tgf-teal); text-transform: uppercase; letter-spacing: 0.05em; background: var(--tgf-light-gray); }
+  .tgf-table th:first-child { border-radius: var(--border-radius-md) 0 0 0; }
+  .tgf-table th:last-child { border-radius: 0 var(--border-radius-md) 0 0; }
+  .tgf-table td { padding: 9px 10px; border-bottom: 1px solid var(--tgf-border); color: var(--tgf-dark); }
+  .tgf-table tr.active-row td { background: var(--tgf-teal-light); font-weight: 600; color: var(--tgf-teal-dark); }
+  .tgf-table tr:last-child td { border-bottom: none; }
+
+  .value-box { border: 1px solid var(--tgf-border); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 0.75rem; background: #fff; }
+  .value-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; font-size: 12px; }
+  .value-row:last-child { margin-bottom: 0; }
+  .value-label { min-width: 160px; color: var(--tgf-gray); font-weight: 500; }
+  .value-bar-wrap { flex: 1; background: var(--tgf-light-gray); border-radius: 4px; height: 8px; overflow: hidden; }
+  .value-bar { height: 8px; border-radius: 4px; transition: width 0.3s; }
+  .value-amount { font-weight: 700; min-width: 90px; text-align: right; font-size: 13px; }
+  .value-footnote { font-size: 10px; color: var(--tgf-gray); margin: 0 0 4px; line-height: 1.5; }
+
+  .tgf-footer { text-align: center; padding-top: 1rem; border-top: 1px solid var(--tgf-border); font-size: 10px; color: var(--tgf-gray); letter-spacing: 0.03em; margin-top: 1.5rem; }
+  .tgf-footer a { color: var(--tgf-teal-dark); text-decoration: none; }
+
+  /* Hide number input spinners */
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+</style>
+</head>
+<body>
+<div class="tgf-wrap">
+
+  <div class="tgf-header">
+    <img src="data:image/png;base64,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" alt="Taylor's Gift" style="height: 36px; width: auto;">
+    <div class="tgf-header-right">
+      <div class="tgf-header-title">OPO Partnership Calculator</div>
+      <div class="tgf-header-sub">Sustaining Partner · Grief Support Program</div>
+    </div>
+  </div>
+
+  <div class="tgf-body">
+
+    <p class="tgf-section-title">1. OPO size tier</p>
+    <div class="tier-grid">
+      <div class="tier-card" data-tier="small" onclick="selectTier('small')">
+        <span class="tier-dot"></span>
+        <p class="tier-label">Small</p>
+        <p class="tier-sub">&lt;200 families/yr</p>
+        <p class="tier-rate">$165 / active family</p>
+        <p class="tier-budget">Est. budget &lt;$1M–$25M</p>
+        <p class="tier-note">Negotiated discount available</p>
+      </div>
+      <div class="tier-card" data-tier="mid" onclick="selectTier('mid')">
+        <span class="tier-dot"></span>
+        <p class="tier-label">Mid</p>
+        <p class="tier-sub">200–500 families/yr</p>
+        <p class="tier-rate">$145 / active family</p>
+        <p class="tier-budget">Est. budget $25M–$75M</p>
+      </div>
+      <div class="tier-card active" data-tier="large" onclick="selectTier('large')">
+        <span class="tier-dot"></span>
+        <p class="tier-label">Large</p>
+        <p class="tier-sub">500+ families/yr</p>
+        <p class="tier-rate">$125 / active family</p>
+        <p class="tier-budget">Est. budget $75M–$200M+</p>
+      </div>
+    </div>
+
+    <p class="tgf-section-title">2. Program inputs</p>
+    <div class="tgf-controls">
+      <div class="control-row">
+        <span class="control-label">Donor families / year</span>
+        <input type="range" min="50" max="1200" step="10" id="famSlider" value="800" oninput="syncFromSlider('fam')" style="flex:1;">
+        <input type="number" class="inline-input" id="famInput" value="800" min="50" max="2000" step="10" oninput="syncFromInput('fam')">
+      </div>
+      <div class="control-row">
+        <span class="control-label">Referral rate</span>
+        <input type="range" min="5" max="80" step="1" id="refSlider" value="30" oninput="syncFromSlider('ref')" style="flex:1;">
+        <input type="number" class="inline-input" id="refInput" value="30" min="1" max="100" step="1" oninput="syncFromInput('ref')" style="width:55px;"><span class="inline-input-suffix">%</span>
+      </div>
+      <div class="control-row">
+        <span class="control-label">Engagement rate</span>
+        <div style="flex:1; display:flex; align-items:center; gap:8px;">
+          <div style="flex:1; height:6px; background:var(--tgf-border); border-radius:4px;">
+            <div style="width:50%; height:6px; background:var(--tgf-teal); border-radius:4px;"></div>
+          </div>
+          <span class="tgf-badge">Fixed 50%</span>
+        </div>
+        <span class="control-val">50%</span>
+      </div>
+      <div class="control-row" style="margin-bottom:0;">
+        <span class="control-label">OPO annual budget</span>
+        <div style="display:flex; align-items:center; gap:6px; flex:1;">
+          <span style="font-size:13px; color:var(--tgf-gray);">$</span>
+          <input class="budget-input" type="number" id="budgetInput" value="137000000" min="100000" step="500000" oninput="update()">
+          <span class="budget-suffix" id="budgetDisplay">$137M</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="billing-notice">
+      <div>
+        <strong>Sustaining Partner billing model:</strong> The per-family rate is used to project a flat monthly fee — invoices are not itemized per family. Partners are billed one flat monthly amount set at onboarding based on projected active families, reviewed every six months.
+      </div>
+    </div>
+
+    <p class="tgf-section-title">3. Support hours per family · year 1</p>
+    <div class="hours-grid">
+      <div class="hours-card">
+        <p class="hours-service">Caring Guide 1:1</p>
+        <p class="hours-val">48 hrs</p>
+        <p class="hours-detail">4 hrs/month avg × 12 mo</p>
+      </div>
+      <div class="hours-card">
+        <p class="hours-service">Virtual support groups</p>
+        <p class="hours-val">26 hrs</p>
+        <p class="hours-detail">Bi-weekly × 60 min</p>
+      </div>
+      <div class="hours-card">
+        <p class="hours-service">Quarterly workshops</p>
+        <p class="hours-val">6 hrs</p>
+        <p class="hours-detail">4 per year × 90 min</p>
+      </div>
+    </div>
+    <div class="hours-total">
+      <span class="hours-total-label">80 hours minimum direct support per family</span>
+      <span class="hours-total-note">Groups are ongoing — support often extends beyond year 1</span>
+    </div>
+
+    <p class="tgf-section-title">4. Estimated investment</p>
+    <div class="metrics-grid">
+      <div class="metric highlight">
+        <p class="metric-label">Flat monthly fee</p>
+        <p class="metric-val" id="mMonthly">$15,000</p>
+        <p class="metric-sub" id="mMonthlyNote">120 projected active families × $125</p>
+      </div>
+      <div class="metric highlight">
+        <p class="metric-label">Annual investment</p>
+        <p class="metric-val" id="mAnnual">$180,000</p>
+        <p class="metric-sub" id="mAnnualNote">$15,000/mo × 12 months</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Annual families engaged</p>
+        <p class="metric-val" id="mEngaged">120</p>
+        <p class="metric-sub" id="mEngagedNote">240 referred × 50%</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Equivalent cost per family</p>
+        <p class="metric-val" id="mCostFam">$1,500</p>
+        <p class="metric-sub" id="mCostFamNote">$125 × 12 mo · reference only</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">% of OPO annual budget</p>
+        <p class="metric-val" id="mBudgetPct">0.13%</p>
+        <p class="metric-sub" id="mBudgetNote">of $137M entered budget</p>
+      </div>
+      <div class="metric">
+        <p class="metric-label">Effective hourly rate</p>
+        <p class="metric-val" id="mHourly">$18.75</p>
+        <p class="metric-sub" id="mHourlyNote">$1,500 ÷ 80 hrs · reference only</p>
+      </div>
+    </div>
+
+    <p class="tgf-section-title">5. Referral scenarios · current tier</p>
+    <table class="tgf-table">
+      <thead>
+        <tr>
+          <th>Referral rate</th>
+          <th>Annual referred</th>
+          <th>Annual engaged</th>
+          <th>Flat monthly fee</th>
+          <th>Annual total</th>
+          <th>% of budget</th>
+        </tr>
+      </thead>
+      <tbody id="scenarioBody"></tbody>
+    </table>
+
+    <p class="tgf-section-title">6. Value comparison · equivalent cost per family / year</p>
+    <div class="value-box">
+      <div class="value-row">
+        <span class="value-label">TGF partnership</span>
+        <div class="value-bar-wrap"><div class="value-bar" id="barTGF" style="background:var(--tgf-teal);"></div></div>
+        <span class="value-amount" id="valTGF" style="color:var(--tgf-teal-dark);">$1,500</span>
+      </div>
+      <div class="value-row">
+        <span class="value-label">In-house grief program</span>
+        <div class="value-bar-wrap"><div class="value-bar" style="background:#A8BFBF; width:57%;"></div></div>
+        <span class="value-amount" style="color:var(--tgf-gray);">$8K–$10K</span>
+      </div>
+      <div class="value-row">
+        <span class="value-label">Private grief counselor</span>
+        <div class="value-bar-wrap"><div class="value-bar" style="background:#C5D5D5; width:100%;"></div></div>
+        <span class="value-amount" style="color:var(--tgf-gray);">$12K–$16K</span>
+      </div>
+    </div>
+    <p class="value-footnote">Private grief counselor: $150–$200/hr × 80 hrs minimum equivalent support.</p>
+    <p class="value-footnote">In-house grief program: estimated fully loaded cost of $118K–$136K/yr (1 FTE coordinator + LMSW clinical supervision + infrastructure), capacity-limited to 12–15 families at TGF service intensity. Cost per family rises significantly as volume grows and additional headcount is required.</p>
+    <p class="value-footnote" style="margin-top:5px; font-weight:600; color:var(--tgf-teal-dark);">TGF partnership scales to any volume without adding internal headcount.</p>
+
+    <div class="tgf-footer">
+      Questions? Contact <a href="mailto:partnerships@taylorsgift.org">partnerships@taylorsgift.org</a> &nbsp;·&nbsp; <a href="https://www.taylorsgift.org">taylorsgift.org</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const TIERS = {
+  small: { label:'Small', defaultFam:150, rate:165, rateLabel:'$165', defaultBudget:10000000 },
+  mid:   { label:'Mid',   defaultFam:350, rate:145, rateLabel:'$145', defaultBudget:50000000 },
+  large: { label:'Large', defaultFam:800, rate:125, rateLabel:'$125', defaultBudget:137000000 }
+};
+const HOURS = 80;
+const MAX_VAL = 16000;
+let currentTier = 'large';
+
+function selectTier(t) {
+  currentTier = t;
+  document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('active'));
+  document.querySelector('[data-tier="'+t+'"]').classList.add('active');
+  document.getElementById('famSlider').value = TIERS[t].defaultFam;
+  document.getElementById('famInput').value = TIERS[t].defaultFam;
+  document.getElementById('budgetInput').value = TIERS[t].defaultBudget;
+  document.getElementById('refSlider').value = 30;
+  document.getElementById('refInput').value = 30;
+  update();
+}
+
+function syncFromSlider(field) {
+  if (field === 'fam') {
+    document.getElementById('famInput').value = document.getElementById('famSlider').value;
+  } else if (field === 'ref') {
+    document.getElementById('refInput').value = document.getElementById('refSlider').value;
+  }
+  update();
+}
+
+function syncFromInput(field) {
+  if (field === 'fam') {
+    let v = parseInt(document.getElementById('famInput').value) || 50;
+    if (v < 50) v = 50;
+    if (v > 2000) v = 2000;
+    // Only clamp slider within its range; allow input to exceed slider max
+    document.getElementById('famSlider').value = Math.min(v, 1200);
+  } else if (field === 'ref') {
+    let v = parseInt(document.getElementById('refInput').value) || 5;
+    if (v < 1) v = 1;
+    if (v > 100) v = 100;
+    document.getElementById('refSlider').value = Math.min(v, 80);
+  }
+  update();
+}
+
+function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+function fmtDec(n) { return '$' + n.toFixed(2); }
+function fmtBudget(n) {
+  if (n >= 1e9) return '$' + (n/1e9).toFixed(1) + 'B';
+  if (n >= 1e6) return '$' + (n/1e6 >= 10 ? Math.round(n/1e6) : (n/1e6).toFixed(1)) + 'M';
+  if (n >= 1e3) return '$' + Math.round(n/1e3) + 'K';
+  return '$' + Math.round(n);
+}
+
+function update() {
+  const tier = TIERS[currentTier];
+  const families = parseInt(document.getElementById('famInput').value) || tier.defaultFam;
+  const refPct = parseInt(document.getElementById('refInput').value) || 30;
+  const budgetRaw = parseFloat(document.getElementById('budgetInput').value) || tier.defaultBudget;
+
+  document.getElementById('budgetDisplay').textContent = fmtBudget(budgetRaw);
+
+  const annualReferred = Math.round(families * refPct / 100);
+  const annualEngaged = Math.round(annualReferred * 0.5);
+  const monthlyFee = annualEngaged * tier.rate;
+  const annualTotal = monthlyFee * 12;
+  const costPerFam = tier.rate * 12;
+  const budgetPct = (annualTotal / budgetRaw * 100);
+  const hourlyEff = costPerFam / HOURS;
+
+  document.getElementById('mMonthly').textContent = fmt(monthlyFee);
+  document.getElementById('mMonthlyNote').textContent = annualEngaged.toLocaleString() + ' projected active families \u00D7 ' + tier.rateLabel;
+  document.getElementById('mAnnual').textContent = fmt(annualTotal);
+  document.getElementById('mAnnualNote').textContent = fmt(monthlyFee) + '/mo \u00D7 12 months';
+  document.getElementById('mEngaged').textContent = annualEngaged.toLocaleString();
+  document.getElementById('mEngagedNote').textContent = annualReferred.toLocaleString() + ' referred \u00D7 50%';
+  document.getElementById('mCostFam').textContent = fmt(costPerFam);
+  document.getElementById('mCostFamNote').textContent = tier.rateLabel + ' \u00D7 12 mo \u00B7 reference only';
+  document.getElementById('mBudgetPct').textContent = budgetPct.toFixed(2) + '%';
+  document.getElementById('mBudgetNote').textContent = 'of ' + fmtBudget(budgetRaw) + ' entered budget';
+  document.getElementById('mHourly').textContent = fmtDec(hourlyEff);
+  document.getElementById('mHourlyNote').textContent = fmt(costPerFam) + ' \u00F7 ' + HOURS + ' hrs \u00B7 reference only';
+
+  document.getElementById('barTGF').style.width = Math.max(4, Math.min(90, (costPerFam / MAX_VAL) * 100)) + '%';
+  document.getElementById('valTGF').textContent = fmt(costPerFam);
+
+  // Scenario table
+  const tbody = document.getElementById('scenarioBody');
+  tbody.innerHTML = '';
+  [10,20,30,40,50].forEach(function(pct) {
+    const ref = Math.round(families * pct / 100);
+    const eng = Math.round(ref * 0.5);
+    const mFee = eng * tier.rate;
+    const aTotal = mFee * 12;
+    const bPct = (aTotal / budgetRaw * 100).toFixed(2) + '%';
+    const isActive = pct === refPct;
+    const tr = document.createElement('tr');
+    if (isActive) tr.className = 'active-row';
+    tr.innerHTML = '<td>' + pct + '%</td><td>' + ref.toLocaleString() + '</td><td>' + eng.toLocaleString() + '</td><td>' + fmt(mFee) + '</td><td>' + fmt(aTotal) + '</td><td>' + bPct + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+// Init
+update();
+</script>
+</body>
+</html>
