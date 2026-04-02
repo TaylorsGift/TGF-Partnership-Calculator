@@ -127,7 +127,7 @@
         <p class="tier-label">Small</p>
         <p class="tier-sub">&lt;200 families/yr</p>
         <p class="tier-rate">$165 / active family</p>
-        <p class="tier-budget">Est. budget &lt;$1M–$25M</p>
+        <p class="tier-budget">Est. budget &lt;$35M</p>
         <p class="tier-note">Negotiated discount available</p>
       </div>
       <div class="tier-card" data-tier="mid" onclick="selectTier('mid')">
@@ -135,14 +135,14 @@
         <p class="tier-label">Mid</p>
         <p class="tier-sub">200–500 families/yr</p>
         <p class="tier-rate">$145 / active family</p>
-        <p class="tier-budget">Est. budget $25M–$75M</p>
+        <p class="tier-budget">Est. budget $35M–$75M</p>
       </div>
       <div class="tier-card active" data-tier="large" onclick="selectTier('large')">
         <span class="tier-dot"></span>
         <p class="tier-label">Large</p>
         <p class="tier-sub">500+ families/yr</p>
         <p class="tier-rate">$125 / active family</p>
-        <p class="tier-budget">Est. budget $75M–$200M+</p>
+        <p class="tier-budget">Est. budget $75M–$160M+</p>
       </div>
     </div>
 
@@ -287,9 +287,9 @@
 
 <script>
 const TIERS = {
-  small: { label:'Small', defaultFam:150, rate:165, rateLabel:'$165', defaultBudget:10000000 },
-  mid:   { label:'Mid',   defaultFam:350, rate:145, rateLabel:'$145', defaultBudget:50000000 },
-  large: { label:'Large', defaultFam:800, rate:125, rateLabel:'$125', defaultBudget:137000000 }
+  small: { label:'Small', defaultFam:150, rate:165, rateLabel:'$165', defaultBudget:23000000 },
+  mid:   { label:'Mid',   defaultFam:350, rate:145, rateLabel:'$145', defaultBudget:53000000 },
+  large: { label:'Large', defaultFam:800, rate:125, rateLabel:'$125', defaultBudget:108000000 }
 };
 const HOURS = 80;
 const MAX_VAL = 16000;
